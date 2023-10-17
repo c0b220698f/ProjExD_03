@@ -28,7 +28,7 @@ class Bird:
     ゲームキャラクター（こうかとん）に関するクラス
     """
 
-    delta = {  # 押下キーと移動量の辞書
+    delta = {  # 押下キーと移動量の辞書,クラス変数
         pg.K_UP: (0, -5),
         pg.K_DOWN: (0, +5),
         pg.K_LEFT: (-5, 0),
@@ -77,6 +77,39 @@ class Bird:
         screen.blit(self.img, self.rct)
 
 
+class Beam:
+    """
+    ゲームキャラクター（こうかとん）に関するクラス
+    """
+
+    delta = {  # 押下キーと移動量の辞書
+        pg.K_UP: (0, -5),
+        pg.K_DOWN: (0, +5),
+        pg.K_LEFT: (-5, 0),
+        pg.K_RIGHT: (+5, 0),
+    }
+
+    def __init__(self, bird):
+        """
+        ビーム画像Surfaceを生成する
+        引数 bird:こうかとんインスタンス (Birdクラスのインスタンス)
+        """
+        self.img = pg.image.load(f"ex03/fig/beam.png")
+        self.rct = self.img.get_rect()
+        self.rct.left = bird.rct.right  # こうかとんの中心の右横座標
+        self.rct.centery = bird.rct.centery  # こうかとんの中心のy縦座標
+        self.vx, self.vy = +5, 0
+
+    def update(self, screen: pg.Surface):
+        """
+        ビームを速度vxに従って移動させる
+        引数 screen: 画面Surface
+        """
+
+        self.rct.move_ip(self.vx, self.vy)
+        screen.blit(self.img, self.rct)
+
+
 class Bomb:
     """
     爆弾に関するクラス
@@ -88,8 +121,8 @@ class Bomb:
         引数1 color：爆弾円の色タプル
         引数2 rad：爆弾円の半径
         """
-        self.img = pg.Surface((2 * rad, 2 * rad))
-        pg.draw.circle(self.img, color, (rad, rad), rad)
+        self.img = pg.Surface((2 * rad, 2 * rad))  # 空のSurface
+        pg.draw.circle(self.img, color, (rad, rad), rad)  # 円をdraw
         self.img.set_colorkey((0, 0, 0))
         self.rct = self.img.get_rect()
         self.rct.center = random.randint(0, WIDTH), random.randint(0, HEIGHT)
@@ -115,26 +148,35 @@ def main():
     bg_img = pg.image.load("ex03/fig/pg_bg.jpg")
     bird = Bird(3, (900, 400))
     bomb = Bomb((255, 0, 0), 10)
-
+    beam = None
     clock = pg.time.Clock()
     tmr = 0
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return
+            if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
+                # keyが押されたら　かつ　keyがスペースキーだったら
+                beam = Beam(bird)
 
         screen.blit(bg_img, [0, 0])
 
-        if bird.rct.colliderect(bomb.rct):
+        if bomb and bird.rct.colliderect(bomb.rct):
             # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
             bird.change_img(8, screen)
             pg.display.update()
             time.sleep(1)
             return
-
+        if beam and bomb and beam.rct.colliderect(bomb.rct):  # ビームと爆弾の衝突判定
+            # 撃墜=None
+            beam = None
+            bomb = None
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
-        bomb.update(screen)
+        if bomb:
+            bomb.update(screen)
+        if beam:
+            beam.update(screen)
         pg.display.update()
         tmr += 1
         clock.tick(50)
