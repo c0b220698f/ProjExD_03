@@ -150,6 +150,28 @@ class Bomb:
         screen.blit(self.img, self.rct)
 
 
+class Explosion:
+    """
+    爆発エフェクト
+    """
+
+    def __init__(self, life):
+        """
+        • ex03/fig/explosion.gifと上下左右にflipしたものを画像リストに格納
+        • 爆発した爆弾のrct.centerに基づき，生成場所を決定
+        • 表示時間（爆発時間）lifeを設定
+        """
+        self.img = pg.image.load(f"ex03/fig/explosion.gif")
+        self.img_flip = pg.transform.flip(self.img, True, True)
+        self.lst = [self.img, self.img_flip]
+        self.rct = Bomb.rct.center
+        self.life = life
+
+    def update(self):
+        self.life -= 1
+        screen.blit(self.lst[self.life % 2], self.rct)
+
+
 class Score:
     """
     スコア表示
