@@ -178,25 +178,28 @@ class Score:
     """
 
     def __init__(self):
-        self.font = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)
         self.score = 0
-        self.img = self.font.render(f"スコア:{self.score}", 0, (0, 0, 255))
-        self.rct = self.img.get_rct()
-        self.get.rct.center = (100, HEIGHT - 50)
+        self.font = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)
+        self.img = self.font.render(f"score:{self.score}", 0, (0, 0, 255))
+        self.rct = self.img.get_rect()
+        self.x = 100
+        self.y = 600
 
-    def update(self):
-        self.score_img = self.font.render(self.score, 0, (0, 0, 255))
-        screen.blit(self.img, self.rct)
+    def update(self, score1, screen):
+        self.txt = self.font.render(f"score:{score1}", 0, (0, 0, 255))
+        screen.blit(self.txt, (self.x, self.y))
 
 
 def main():
+    score = 0
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("ex03/fig/pg_bg.jpg")
     bird = Bird(3, (900, 400))
     bombs = [Bomb() for _ in range(NUM_OF_BOMBS)]
     beam = None
-
+    score = Score()
+    score1 = 0
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -222,9 +225,10 @@ def main():
                     beam = None
                     bombs[i] = None
                     bird.change_img(6, screen)
-                    Score.score
+                    score1 += 1  # スコアを加算
                     pg.display.update()
         bombs = [bomb for bomb in bombs if bomb]
+        score.update(score1, screen)
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
