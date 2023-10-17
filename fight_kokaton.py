@@ -150,6 +150,23 @@ class Bomb:
         screen.blit(self.img, self.rct)
 
 
+class Score:
+    """
+    スコア表示
+    """
+
+    def __init__(self):
+        self.font = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)
+        self.score = 0
+        self.img = self.font.render(f"スコア:{self.score}", 0, (0, 0, 255))
+        self.rct = self.img.get_rct()
+        self.get.rct.center = (100, HEIGHT - 50)
+
+    def update(self):
+        self.score_img = self.font.render(self.score, 0, (0, 0, 255))
+        screen.blit(self.img, self.rct)
+
+
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -183,6 +200,7 @@ def main():
                     beam = None
                     bombs[i] = None
                     bird.change_img(6, screen)
+                    Score.score
                     pg.display.update()
         bombs = [bomb for bomb in bombs if bomb]
 
