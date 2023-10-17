@@ -6,7 +6,7 @@ import pygame as pg
 
 
 WIDTH = 1600  # ゲームウィンドウの幅
-HEIGHT = 900  # ゲームウィンドウの高さz
+HEIGHT = 900  # ゲームウィンドウの高さ
 
 
 def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
@@ -28,7 +28,7 @@ class Bird:
     ゲームキャラクター（こうかとん）に関するクラス
     """
 
-    delta = {  # 押下キーと移動量の辞書,クラス変数
+    delta = {  # 押下キーと移動量の辞書
         pg.K_UP: (0, -5),
         pg.K_DOWN: (0, +5),
         pg.K_LEFT: (-5, 0),
@@ -78,34 +78,22 @@ class Bird:
 
 
 class Beam:
-    """
-    ゲームキャラクター（こうかとん）に関するクラス
-    """
-
-    delta = {  # 押下キーと移動量の辞書
-        pg.K_UP: (0, -5),
-        pg.K_DOWN: (0, +5),
-        pg.K_LEFT: (-5, 0),
-        pg.K_RIGHT: (+5, 0),
-    }
-
-    def __init__(self, bird):
+    def __init__(self, bird: Bird):
         """
         ビーム画像Surfaceを生成する
-        引数 bird:こうかとんインスタンス (Birdクラスのインスタンス)
+        引数 bird：こうかとんインスタンス（Birdクラスのインスタンス）
         """
         self.img = pg.image.load(f"ex03/fig/beam.png")
         self.rct = self.img.get_rect()
-        self.rct.left = bird.rct.right  # こうかとんの中心の右横座標
-        self.rct.centery = bird.rct.centery  # こうかとんの中心のy縦座標
+        self.rct.left = bird.rct.right  # こうかとんの右横座標
+        self.rct.centery = bird.rct.centery  # こうかとんの中心縦座標
         self.vx, self.vy = +5, 0
 
     def update(self, screen: pg.Surface):
         """
-        ビームを速度vxに従って移動させる
-        引数 screen: 画面Surface
+        ビームを速度vxにしたがって移動させる
+        引数 screen：画面Surface
         """
-
         self.rct.move_ip(self.vx, self.vy)
         screen.blit(self.img, self.rct)
 
@@ -121,8 +109,8 @@ class Bomb:
         引数1 color：爆弾円の色タプル
         引数2 rad：爆弾円の半径
         """
-        self.img = pg.Surface((2 * rad, 2 * rad))  # 空のSurface
-        pg.draw.circle(self.img, color, (rad, rad), rad)  # 円をdraw
+        self.img = pg.Surface((2 * rad, 2 * rad))
+        pg.draw.circle(self.img, color, (rad, rad), rad)
         self.img.set_colorkey((0, 0, 0))
         self.rct = self.img.get_rect()
         self.rct.center = random.randint(0, WIDTH), random.randint(0, HEIGHT)
@@ -149,6 +137,7 @@ def main():
     bird = Bird(3, (900, 400))
     bomb = Bomb((255, 0, 0), 10)
     beam = None
+
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -156,7 +145,7 @@ def main():
             if event.type == pg.QUIT:
                 return
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
-                # keyが押されたら　かつ　keyがスペースキーだったら
+                # キーが押されたら，かつ，キーの種類がスペースキーだったら
                 beam = Beam(bird)
 
         screen.blit(bg_img, [0, 0])
@@ -167,10 +156,15 @@ def main():
             pg.display.update()
             time.sleep(1)
             return
+
         if beam and bomb and beam.rct.colliderect(bomb.rct):  # ビームと爆弾の衝突判定
-            # 撃墜=None
+            # 撃墜＝Noneにする
             beam = None
             bomb = None
+            bird.change_img(6, screen)
+            pg.display.update()
+            time.sleep(1)
+
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
         if bomb:
